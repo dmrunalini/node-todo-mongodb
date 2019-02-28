@@ -7,7 +7,7 @@ var Todo = require('./../models/todo').Todo;
 const todos = [{
   _id: new ObjectID(),
   text: 'First test todo'
-},{_id:new ObjectID(),text:'Second test todo'}];
+},{_id:new ObjectID(),text:'Second test todo',completed: true,completedAt:3443}];
 
 //this is just for post
 // beforeEach((done) => {
@@ -134,7 +134,46 @@ describe('DELETE /todos/:id',()=>{
     .expect(404)
     .end(done);
   });
-})
+});
+
+
+describe('PATCH /todos/:id',()=>{
+  it('Should update the todo ',(done)=>{
+    var hexId = todos[0]._id.toHexString();
+    var text = 'Text changed from test case';
+    request(app)
+    .patch(`/todos/${hexId}`)
+    .send({
+      completed: true,
+      text
+    })
+    .expect(200)
+    .expect((res)=>{
+      expect(res.body.todo.text).toBe(text);
+      expect(res.body.todo.completed).toBe(true);
+      expect(typeof res.body.todo.completedAt).toBe('number');
+    })
+    .end(done);
+  });
+
+  it('Should clear completedAt when to do is not completed',(done)=>{
+    var hexId = todos[0]._id.toHexString();
+    var text = 'Text changed from test case!!';
+    request(app)
+    .patch(`/todos/${hexId}`)
+    .send({
+      completed: false,
+      text
+    })
+    .expect(200)
+    .expect((res)=>{
+      expect(res.body.todo.text).toBe(text);
+      expect(res.body.todo.completed).toBe(false);
+      expect(res.body.todo.completedAt).toBeFalsy();
+    })
+    .end(done);
+  });
+});
 
 
 
