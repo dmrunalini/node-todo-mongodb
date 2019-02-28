@@ -3,7 +3,7 @@ var bodyParser= require('body-parser');
 
 var {mongoose} = require('./db/mongoose');
 var Todo = require('./models/todo').Todo;
-var {User} = require('./models/User');
+var User = require('./models/user').User;
 const {ObjectID} = require('mongodb');
 var app = express();
 
