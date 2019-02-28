@@ -2,7 +2,7 @@ const expect = require('expect');
 const request = require('supertest');
 const {ObjectID} = require('mongodb')
 const {app} = require('./../server');
-var {Todo} = require('./../models/Todo');
+var Todo = require('./../models/todo').Todo;
 
 const todos = [{
   _id: new ObjectID(),
@@ -99,5 +99,43 @@ request(app)
 .expect(404)
 .end(done);
 });
+
+describe('DELETE /todos/:id',()=>{
+  it('Should remove a todo',(done)=>{
+    var hexId = todos[1]._id.toHexString();
+    request(app)
+    .delete(`/todos/${hexId}`)
+    .expect(200)
+    .expect((res)=>{
+      expect(res.body.todo._id).toBe(hexId);
+    })
+    .end((err,res)=>{
+      if(err) {
+        return done(err);
+      }
+      Todo.findById(hexId).then((todo)=>{
+          expect(todo).toBeFalsy();
+        done();
+      }).catch((e)=>done(e));
+    });
+  });
+
+  it('Should return 404 if todo not found',(done)=>{
+    var hexId = new ObjectID().toHexString();
+    request(app)
+    .get(`/todos/${hexId}`)
+    .expect(404)
+    .end(done);
+  });
+
+  it('Should return 404 if Object Id is invalid',(done)=>{
+    request(app)
+    .get(`/todos/123`)
+    .expect(404)
+    .end(done);
+  });
+})
+
+
 
 });
